@@ -19,6 +19,8 @@ namespace
 	GLuint modelViewProjectionUBOBindingIndex;
 
 	Camera3rdPerson camera;
+
+
 }
 
 void init()
@@ -49,7 +51,7 @@ void init()
 
 	glGenBuffers(1, &modelViewProjectionUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, modelViewProjectionUBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
 	modelViewProjectionUBOBindingIndex = 0;
     glBindBufferBase(GL_UNIFORM_BUFFER, modelViewProjectionUBOBindingIndex, modelViewProjectionUBO);
 
@@ -98,6 +100,11 @@ void enterFrame()
 
 }
 
+
+/*-----------------------------
+		Input/Output 
+-----------------------------*/
+
 int main (int argc, char **argv)
 {
     // Create the main rendering window
@@ -106,11 +113,15 @@ int main (int argc, char **argv)
 	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(width, height, 32), "Instanced Culling", 6UL, sf::WindowSettings(24U, 8U, 4U));
 	
     window->SetActive();
-    window->UseVerticalSync(true);
+    //window->UseVerticalSync(true);
     //window->SetFramerateLimit(100);
 
 	init();
 	resize(width, height);
+
+	bool mouseDown = false;
+	int prevMouseX = 0;
+	int prevMouseY = 0;
 
     while (window->IsOpened())
     {
@@ -121,20 +132,65 @@ int main (int argc, char **argv)
         sf::Event myEvent;
         while (window->GetEvent(myEvent))
         {
+			switch(myEvent.Type)
+			{
+				case sf::Event::Resized:
 
-            if(myEvent.Type == sf::Event::Resized)
-            {
-                resize(window->GetWidth(), window->GetHeight());
-            }
+					resize(window->GetWidth(), window->GetHeight());
+					break;
 
-            // Close window : exit
-            if (myEvent.Type == sf::Event::Closed)
-            {
-                window->Close();
-            }
+				case sf::Event::MouseButtonPressed:
+
+					if(myEvent.MouseButton.Button == sf::Mouse::Left)
+					{
+						mouseDown = true;
+						prevMouseX = myEvent.MouseButton.X;
+						prevMouseY = myEvent.MouseButton.Y;
+					}
+					break;
+
+				case sf::Event::MouseButtonReleased:
+
+					if(myEvent.MouseButton.Button == sf::Mouse::Left)
+					{
+						mouseDown = false;
+					}
+					break;
+
+				case sf::Event::MouseMoved:
+
+					if(mouseDown)
+					{
+						int x = myEvent.MouseMove.X;
+						int y = myEvent.MouseMove.Y;
+
+						int mouseXDiff = (x - prevMouseX);
+						int mouseYDiff = (y - prevMouseY);
+
+						float scaleFactor = .008f;
+						float mouseXDifference = -mouseXDiff * scaleFactor;
+						float mouseYDifference = -mouseYDiff * scaleFactor;
+						camera.rotate(mouseXDifference,mouseYDifference);
+
+						prevMouseX = x;
+						prevMouseY = y;
+					}
+					break;
+
+				case sf::Event::KeyPressed:
+
+					if(myEvent.Key.Code == sf::Key::Space)
+					{
+						std::cout << "pressed spacebar" << std::endl;
+					}
+					break;
+
+				case sf::Event::Closed:
+
+					window->Close();
+					break;
+			}
         }
-
     }
-
 }
 
