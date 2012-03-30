@@ -19,8 +19,6 @@ namespace
 	GLuint modelViewProjectionUBOBindingIndex;
 
 	Camera3rdPerson camera;
-
-
 }
 
 void init()
@@ -49,11 +47,13 @@ void init()
     glDepthFunc(GL_LEQUAL);
     glDepthRange(0.0f, 1.0f);
 
+	//create model view projection UBO
 	glGenBuffers(1, &modelViewProjectionUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, modelViewProjectionUBO);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STREAM_DRAW);
 	modelViewProjectionUBOBindingIndex = 0;
     glBindBufferBase(GL_UNIFORM_BUFFER, modelViewProjectionUBOBindingIndex, modelViewProjectionUBO);
+
 
 	//init other things
 	Globals::shaderState.initialize();

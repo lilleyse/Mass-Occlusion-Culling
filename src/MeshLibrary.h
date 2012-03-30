@@ -1,7 +1,31 @@
 #pragma once
 
-#include "Mesh.h"
+#include <gl3w/gl3w.h>
 #include <vector>
+
+
+
+struct Vertex
+{
+	float x, y, z;
+	float nx, ny, nz;
+	float s, t;
+};
+
+enum Attributes
+{
+	POSITION
+};
+
+struct DrawElementsIndirectData
+{
+	GLuint count;
+	GLuint primCount;
+	GLuint firstIndex;
+	GLint  baseVertex;
+	GLuint baseInstance;
+};
+
 
 class MeshLibrary
 {
@@ -13,10 +37,11 @@ public:
 	void initialize();
 	void render();
 
-	std::vector<Mesh*> meshes;
+private:
 
-	Mesh* getMesh(int number);
-
-
+	GLuint vertexArrayObject;
+	GLuint arrayBufferObject;
+	GLuint elementBufferObject;
+	GLuint indirectBufferObject;
 
 };
