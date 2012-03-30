@@ -1,5 +1,6 @@
 #pragma once
-#include <gl3w/gl3w.h>
+#include <glew/glew.h>
+#include <glew/wglew.h>
 #include <vector>
 #include "Utils.h"
 #include <fstream>

@@ -1,9 +1,29 @@
 #pragma once
 
-#include <gl3w/gl3w.h>
+#include <glew/glew.h>
+#include <glew/wglew.h>
 #include <vector>
+#include <iostream>
 
 
+struct DrawElementsIndirectCommand
+{
+	GLuint count;
+	GLuint primCount;
+	GLuint firstIndex;
+	GLint  baseVertex;
+	GLuint baseInstance;
+};
+
+struct Mesh
+{
+	float* positionData;
+	unsigned short* elementArray;
+	int numVertices;
+	int numElements;
+
+	DrawElementsIndirectCommand indirectCommand;
+};
 
 struct Vertex
 {
@@ -17,14 +37,7 @@ enum Attributes
 	POSITION
 };
 
-struct DrawElementsIndirectData
-{
-	GLuint count;
-	GLuint primCount;
-	GLuint firstIndex;
-	GLint  baseVertex;
-	GLuint baseInstance;
-};
+
 
 
 class MeshLibrary

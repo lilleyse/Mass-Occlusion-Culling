@@ -1,4 +1,6 @@
-#include <gl3w/gl3w.h>
+#include <glew/glew.h>
+#include <glew/wglew.h>
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <glm/glm.hpp>
@@ -21,10 +23,16 @@ namespace
 	Camera3rdPerson camera;
 }
 
+struct Test
+{
+	int thing;
+};
+
 void init()
 {
+
 	//init OpenGL
-	gl3wInit();
+	glewInit();
 	fzNear = .10f;
     fzFar = 100.0f;
     float fieldOfViewDeg = 45.0f;
