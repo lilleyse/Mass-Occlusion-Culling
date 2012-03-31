@@ -34,7 +34,7 @@ void init()
 	//init OpenGL
 	glewInit();
 	fzNear = .10f;
-    fzFar = 100.0f;
+    fzFar = 1000.0f;
     float fieldOfViewDeg = 45.0f;
 	float fFovRad = fieldOfViewDeg * DEGREE_TO_RAD;
     frustumScale = 1.0f / tan(fFovRad / 2.0f);
@@ -93,10 +93,9 @@ void enterFrame()
 	glm::mat4* Pointer = (glm::mat4*)glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), 
 			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-		glm::mat4 model = glm::mat4(1.0f);
 		glm::mat4 view = Globals::viewMatrix;
 		glm::mat4 projection = projectionMatrix;
-		glm::mat4 modelViewProjection = projection * view * model;
+		glm::mat4 modelViewProjection = projection * view;
 
 		*Pointer = modelViewProjection;
 
@@ -185,6 +184,13 @@ int main (int argc, char **argv)
 					}
 					break;
 
+				case sf::Event::MouseWheelMoved:
+					{
+						int delta = myEvent.MouseWheel.Delta;
+						float scaleFactor = 1.0f;
+						camera.zoom(scaleFactor*delta);
+					}
+					break;
 				case sf::Event::KeyPressed:
 
 					if(myEvent.Key.Code == sf::Key::Space)

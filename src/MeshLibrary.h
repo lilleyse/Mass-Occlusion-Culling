@@ -4,6 +4,7 @@
 #include <glew/wglew.h>
 #include <vector>
 #include <iostream>
+#include <SFML/System.hpp>
 
 
 struct DrawElementsIndirectCommand
@@ -21,6 +22,7 @@ struct Mesh
 	unsigned short* elementArray;
 	int numVertices;
 	int numElements;
+	int numInstances;
 
 	DrawElementsIndirectCommand indirectCommand;
 };
@@ -34,7 +36,8 @@ struct Vertex
 
 enum Attributes
 {
-	POSITION
+	POSITION,
+	TRANSFORM
 };
 
 
@@ -54,6 +57,7 @@ private:
 
 	GLuint vertexArrayObject;
 	GLuint arrayBufferObject;
+	GLuint transformsBufferObject;
 	GLuint elementBufferObject;
 	GLuint indirectBufferObject;
 

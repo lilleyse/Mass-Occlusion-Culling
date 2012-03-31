@@ -13,20 +13,8 @@ layout(binding = 0) uniform transform
 /*-------------------------
 		Inputs
 ---------------------------*/
-layout(location = 0) in vec4 position;
-
-/*-------------------------
-		Outputs
----------------------------*/
-
-out gl_PerVertex
-{
-	vec4 gl_Position;
-	float gl_PointSize;
-	float gl_ClipDistance[];
-};
-
-
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 translation;
 
 /*-------------------------
 		Main
@@ -34,5 +22,5 @@ out gl_PerVertex
 
 void main()
 {
-	gl_Position = ModelViewProjection.matrix * position;
+	gl_Position = ModelViewProjection.matrix * vec4(position + translation, 1);
 }

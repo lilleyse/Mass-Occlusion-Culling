@@ -17,7 +17,7 @@ void MeshLibrary::initialize()
 	//create mesh 1
 	float positionData1[] =
     {
-		.5f, .5f, -.5f, .5f, -.5f, -.5f, -.5f, -.5f, -.5f, -.5f, .5f, -.5f, .5f, .5f, .5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, .5f, -.5f, .5f, .5f, .5f, -.5f, .5f, .5f, .5f, .5f, -.5f, .5f, .5f, -.5f, -.5f, .5f, -.5f, -.5f,.5f, -.5f, .5f,-.5f, -.5f, .5f,-.5f, -.5f, -.5f,-.5f, -.5f, -.5f,-.5f, -.5f, .5f,-.5f, .5f, .5f,-.5f, .5f, -.5f,.5f, .5f, .5f,.5f, .5f, -.5f,-.5f, .5f, -.5f,-.5f, .5f, .5f
+		.7f, .7f, -.7f, .7f, -.7f, -.7f, -.7f, -.7f, -.7f, -.7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, -.7f, -.7f,.7f, -.7f, .7f,-.7f, -.7f, .7f,-.7f, -.7f, -.7f,-.7f, -.7f, -.7f,-.7f, -.7f, .7f,-.7f, .7f, .7f,-.7f, .7f, -.7f,.7f, .7f, .7f,.7f, .7f, -.7f,-.7f, .7f, -.7f,-.7f, .7f, .7f
 	};
 
 	unsigned short elementArray1[] =
@@ -30,6 +30,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
+	mesh1.numInstances = 100;
 	meshes.push_back(mesh1);
 
 	//create mesh 2
@@ -48,6 +49,7 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
+	mesh2.numInstances = 100;
 	meshes.push_back(mesh2);
 
 
@@ -56,29 +58,41 @@ void MeshLibrary::initialize()
 	//get the total number of vertices and elements
 	int totalVertices = 0;
 	int totalElements = 0;
+	int totalInstances = 0;
 	for(unsigned int i = 0; i < numMeshes; i++)
 	{
 		totalVertices += meshes[i].numVertices;
 		totalElements += meshes[i].numElements;
+		totalInstances += meshes[i].numInstances;
 	}
 
 	//combine vertex and element data from the different shapes
 	int vertexCounter = 0;
 	int elementCounter = 0;
+	int instanceCounter = 0;
 	DrawElementsIndirectCommand* indirectCommands = new DrawElementsIndirectCommand[numMeshes];
 	Vertex* vertices = new Vertex[totalVertices];
 	unsigned short* elementArray = new unsigned short[totalElements];
-
-	//memcpy(elementArray, meshes[0].elementArray, 36*sizeof(unsigned short));
+	float* transformData = new float[totalInstances*3];
+	sf::Randomizer randomizer;
 
 	for(unsigned int i = 0; i < numMeshes; i++)
 	{
+		for(int j = 0; j < meshes[i].numInstances; j++)
+		{
+			transformData[(instanceCounter + j)*3 + 0] = randomizer.Random(-100.0f, 100.0f);
+			transformData[(instanceCounter + j)*3 + 1] = randomizer.Random(-100.0f, 100.0f);
+			transformData[(instanceCounter + j)*3 + 2] = randomizer.Random(-100.0f, 100.0f);
+		}
+
+
+
 		//create indirect buffer
 		indirectCommands[i].count = meshes[i].numElements;
-		indirectCommands[i].primCount = 1;
+		indirectCommands[i].primCount = meshes[i].numInstances;
 		indirectCommands[i].firstIndex = elementCounter;
 		indirectCommands[i].baseVertex = vertexCounter;
-		indirectCommands[i].baseInstance = 0;
+		indirectCommands[i].baseInstance = instanceCounter;
 
 		//create vertices
 		for(int j = 0; j < meshes[i].numVertices; j++)
@@ -94,14 +108,19 @@ void MeshLibrary::initialize()
 
 		vertexCounter += meshes[i].numVertices;
 		elementCounter += meshes[i].numElements;
+		instanceCounter += meshes[i].numInstances;
 	}
 	
-
-
 	//create and bind array buffer, set data
     glGenBuffers(1, &arrayBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, arrayBufferObject);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*totalVertices, vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//create and bind array buffer for transformations, set data
+    glGenBuffers(1, &transformsBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, transformsBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*totalInstances*3, transformData, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //create and bind element array buffer, set data to the stored element array, then close buffer
@@ -114,14 +133,18 @@ void MeshLibrary::initialize()
     glGenVertexArrays(1, &vertexArrayObject);
     glBindVertexArray(vertexArrayObject);
 
-    //bind array buffer again
-    glBindBuffer(GL_ARRAY_BUFFER, arrayBufferObject);
-
 	//enable vertex attributes
 	glEnableVertexAttribArray(GLuint(POSITION));
+	glEnableVertexAttribArray(GLuint(TRANSFORM));
 
-	//set position attrib pointer
+    //bind array buffer again
+    glBindBuffer(GL_ARRAY_BUFFER, arrayBufferObject);
 	glVertexAttribPointer(POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+	//bind transform array buffer again
+	glBindBuffer(GL_ARRAY_BUFFER, transformsBufferObject);
+	glVertexAttribPointer(TRANSFORM, 3, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+	glVertexAttribDivisor(TRANSFORM, 1);
 
 	//bind element array
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
