@@ -10,8 +10,14 @@ MeshLibrary::~MeshLibrary()
 
 }
 
+
 void MeshLibrary::initialize()
 {
+
+	/*----------------------------
+			Create Meshes
+	----------------------------*/
+
 	std::vector<Mesh> meshes;
 
 	//create mesh 1
@@ -30,7 +36,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 100;
+	mesh1.numInstances = 10000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2
@@ -49,9 +55,12 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 100;
+	mesh2.numInstances = 10000;
 	meshes.push_back(mesh2);
 
+	/*------------------------------------
+			Lump mesh data together
+	--------------------------------------*/
 
 	unsigned int numMeshes = meshes.size();
 
@@ -70,23 +79,13 @@ void MeshLibrary::initialize()
 	int vertexCounter = 0;
 	int elementCounter = 0;
 	int instanceCounter = 0;
+
 	DrawElementsIndirectCommand* indirectCommands = new DrawElementsIndirectCommand[numMeshes];
 	Vertex* vertices = new Vertex[totalVertices];
 	unsigned short* elementArray = new unsigned short[totalElements];
-	float* transformData = new float[totalInstances*3];
-	sf::Randomizer randomizer;
 
 	for(unsigned int i = 0; i < numMeshes; i++)
 	{
-		for(int j = 0; j < meshes[i].numInstances; j++)
-		{
-			transformData[(instanceCounter + j)*3 + 0] = randomizer.Random(-100.0f, 100.0f);
-			transformData[(instanceCounter + j)*3 + 1] = randomizer.Random(-100.0f, 100.0f);
-			transformData[(instanceCounter + j)*3 + 2] = randomizer.Random(-100.0f, 100.0f);
-		}
-
-
-
 		//create indirect buffer
 		indirectCommands[i].count = meshes[i].numElements;
 		indirectCommands[i].primCount = meshes[i].numInstances;
@@ -111,23 +110,39 @@ void MeshLibrary::initialize()
 		instanceCounter += meshes[i].numInstances;
 	}
 	
-	//create and bind array buffer, set data
+	/*-----------------------------------------
+			Generate OpenGL buffers and VAO
+	------------------------------------------*/
+
+	//array buffer
     glGenBuffers(1, &arrayBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, arrayBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*totalVertices, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, totalVertices*sizeof(Vertex), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//create and bind array buffer for transformations, set data
-    glGenBuffers(1, &transformsBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, transformsBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*totalInstances*3, transformData, GL_STATIC_DRAW);
+	//translation data that is sent to the vertex shader as a vertex attribute, filled by OpenCL and never read/written by CPU
+    glGenBuffers(1, &drawTransformsBufferObject);
+    glBindBuffer(GL_ARRAY_BUFFER, drawTransformsBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, totalInstances*sizeof(float)*4, 0, GL_STREAM_COPY);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //create and bind element array buffer, set data to the stored element array, then close buffer
+    //element buffer
     glGenBuffers(1, &elementBufferObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort)*totalElements, elementArray, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalElements*sizeof(GLushort), elementArray, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//indirect command buffer
+	glGenBuffers(1, &indirectBufferObject);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, numMeshes*sizeof(DrawElementsIndirectCommand), indirectCommands, GL_STATIC_DRAW);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+	//bind atomic counter to the primCount parameter of the indirect command (should do this for all the meshes)
+	glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, indirectBufferObject, sizeof(GLuint), sizeof(GLuint));
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
+
 
 	//create and bind vao
     glGenVertexArrays(1, &vertexArrayObject);
@@ -142,45 +157,208 @@ void MeshLibrary::initialize()
 	glVertexAttribPointer(POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 
 	//bind transform array buffer again
-	glBindBuffer(GL_ARRAY_BUFFER, transformsBufferObject);
-	glVertexAttribPointer(TRANSFORM, 3, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, drawTransformsBufferObject);
+	glVertexAttribPointer(TRANSFORM, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(TRANSFORM, 1);
 
 	//bind element array
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
 
-	//generate indirect buffer
-	glGenBuffers(1, &indirectBufferObject);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(DrawElementsIndirectCommand)*numMeshes, indirectCommands, GL_STATIC_READ);
 	
-
-	//bind atomic counter to the primCount parameter of the indirect command
-	//GLuint instances = 3;
-	//glBufferSubData(GL_DRAW_INDIRECT_BUFFER, sizeof(GLuint), sizeof(GLuint), &instances);
-	glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, indirectBufferObject, sizeof(GLuint), sizeof(GLuint));
 	
-
-
-	//cleanup
+	//cleanup OpenGL
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+	
 	delete[] vertices;
 	delete[] elementArray;
 	delete[] indirectCommands;
 
+
+	/*-----------------------------------------
+		Initialize OpenCL
+	------------------------------------------*/
+
+	localWorkSize = 256;
+
+	//rounds globalWorkSize up to the next multiople of localWorkSize
+	int r = totalInstances % localWorkSize;
+    if(r == 0) 
+        globalWorkSize =  totalInstances;
+	else 
+        globalWorkSize = totalInstances + localWorkSize - r;
+
+
+	//Get an OpenCL platform
+    clError = clGetPlatformIDs(1, &clPlatform, NULL);
+
+    if (clError != CL_SUCCESS)
+        std::cout << "could not create platform" << std::endl;
+
+    //Get the device - for now just assume that the device supports sharing with OpenGL
+    clError = clGetDeviceIDs(clPlatform, CL_DEVICE_TYPE_GPU, 1, &clDevice, NULL);
+   
+	if (clError != CL_SUCCESS) 
+		std::cout << "could not get a GPU device on the platform" << std::endl;
+
+	//Create the context, with support for sharing with OpenGL 
+	cl_context_properties props[] = 
+    {
+        CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(), 
+        CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(), 
+        CL_CONTEXT_PLATFORM, (cl_context_properties)clPlatform, 
+        0
+    };
+    clGPUContext = clCreateContext(props, 1, &clDevice, NULL, NULL, &clError);
+	
+	if (clError != CL_SUCCESS)
+        std::cout << "could not create a context" << std::endl;
+
+    // Create a command-queue
+    clCommandQueue = clCreateCommandQueue(clGPUContext, clDevice, 0, &clError);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not create command queue" << std::endl;
+
+
+
+	//fill the transform data with random numbers
+	float* transformData = new float[globalWorkSize*4];
+	for(int i = 0; i < totalInstances; i++)
+	{
+		transformData[i*4 + 0] = glm::compRand1(-100.0f, 100.0f);
+		transformData[i*4 + 1] = glm::compRand1(-100.0f, 100.0f);
+		transformData[i*4 + 2] = glm::compRand1(-100.0f, 100.0f);
+		transformData[i*4 + 3] = 0;
+	}
+
+
+	std::cout << transformData[4] << " " << transformData[5] << transformData[6] << transformData[7] << std::endl;
+
+	//create the cl buffer
+	inputTransformData = clCreateBuffer(clGPUContext, CL_MEM_READ_ONLY, globalWorkSize * sizeof(cl_float) * 4, NULL, &clError);
+	if (clError != CL_SUCCESS) 
+		std::cout << "could not put data into cl buffer" << std::endl;
+
+
+
+
+	// load program source code
+    size_t programLength;
+	std::string filepath = "data/culling.cl";
+	filepath = Utils::getFilePath(filepath);
+	char* cSourceCL = loadProgramSource(filepath.c_str(), &programLength);
+	if(cSourceCL == NULL)
+		std::cout << "could not load program source" << std::endl;
+  
+    // create the program
+    clProgram = clCreateProgramWithSource(clGPUContext, 1, (const char **) &cSourceCL, &programLength, &clError);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not create program" << std::endl;
+
+    // build the program
+    clError = clBuildProgram(clProgram, 0, NULL, "-cl-fast-relaxed-math", NULL, NULL);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not build program" << std::endl;
+
+    // create the kernel
+    clKernel = clCreateKernel(clProgram, "pass_along", &clError);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not create kernel" << std::endl;
+
+	//treat the GL buffer object as a CL buffer object
+	vbo_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_WRITE_ONLY, drawTransformsBufferObject, NULL);
+
+
+    // set the args values for the kernel
+    clError  = clSetKernelArg(clKernel, 0, sizeof(cl_mem), (void*) &inputTransformData);
+    clError |= clSetKernelArg(clKernel, 1, sizeof(cl_mem), (void*) &vbo_cl);
+    clError |= clSetKernelArg(clKernel, 2, sizeof(cl_uint), &totalInstances);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not set arguments to kernel" << std::endl;
+
+   
+	//send translation data to the cl buffer
+	clError = clEnqueueWriteBuffer(clCommandQueue, inputTransformData, CL_FALSE, 0, globalWorkSize * sizeof(cl_float) * 4, transformData, 0, NULL, NULL);
+	if (clError != CL_SUCCESS)
+        std::cout << "could not transfer data from host ptr to device ptr" << std::endl;
+
+}
+
+//from the Nvidia OpenCL utils
+char* MeshLibrary::loadProgramSource(const char* cFilename, size_t* szFinalLength)
+{
+    // locals 
+    FILE* pFileStream = NULL;
+    size_t szSourceLength;
+
+    if(fopen_s(&pFileStream, cFilename, "rb") != 0)
+	{
+		return NULL;
+	}
+
+    // get the length of the source code
+    fseek(pFileStream, 0, SEEK_END); 
+    szSourceLength = ftell(pFileStream);
+    fseek(pFileStream, 0, SEEK_SET); 
+
+    // allocate a buffer for the source code string and read it in
+    char* cSourceString = (char *)malloc(szSourceLength + 1); 
+    if (fread((cSourceString), szSourceLength, 1, pFileStream) != 1)
+    {
+        fclose(pFileStream);
+        free(cSourceString);
+        return 0;
+    }
+
+    // close the file and return the total length of the string
+    fclose(pFileStream);
+    if(szFinalLength != 0)
+    {
+        *szFinalLength = szSourceLength;
+    }
+    cSourceString[szSourceLength] = '\0';
+
+    return cSourceString;
 }
 
 
 void MeshLibrary::render()
 {
+
+	//with error checking
+
+    /*glFinish();
+    clError = clEnqueueAcquireGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+    if (clError != CL_SUCCESS)
+        std::cout << "could not acquire GL object for use" << std::endl;
+
+	clError = clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, NULL, &globalWorkSize, &localWorkSize, 0,0,0 );
+	if (clError != CL_SUCCESS)
+        std::cout << "could not run kernel" << std::endl;
+
+	clError = clEnqueueReleaseGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+	if (clError != CL_SUCCESS)
+        std::cout << "could not release gl object" << std::endl;
+
+	clFinish(clCommandQueue);*/
+
+
+
+    glFinish();
+    clEnqueueAcquireGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+	clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, NULL, &globalWorkSize, &localWorkSize, 0,0,0 );
+	clEnqueueReleaseGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+	clFinish(clCommandQueue);
+
+
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
     glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, 2, 0);
     glBindVertexArray(0);
+
+	
+
 
 }
 

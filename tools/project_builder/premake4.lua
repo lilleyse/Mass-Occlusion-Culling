@@ -21,6 +21,16 @@ local lib_glew_linux_32 =      lib_glew .. "linux32/"
 local lib_glew_linux_64 =      lib_glew .. "linux64/"
 local lib_glew_path = ""
 
+--OpenCL
+local lib_opencl = libs_location_rel        .. "OpenCL/"
+local lib_opencl_win32_debug =   lib_opencl .. ""
+local lib_opencl_win32_release = lib_opencl .. ""
+local lib_opencl_win64_debug =   lib_opencl .. ""
+local lib_opencl_win64_release = lib_opencl .. ""
+local lib_opencl_linux_32 =      lib_opencl .. ""
+local lib_opencl_linux_64 =      lib_opencl .. ""
+local lib_opencl_path = ""
+
 --SFML
 local lib_sfml = libs_location_rel      .. "SFML_1.6/"
 local lib_sfml_win32_debug =   lib_sfml .. "win32/Debug/"
@@ -119,12 +129,14 @@ project ( name )
 		if os_type ==               "windows" then
 			if platform_type ==     "x32" then 
 				lib_glew_path = 	lib_glew_win32_debug
+				lib_opencl_path = 	lib_opencl_win32_debug
 				lib_sfml_path =     lib_sfml_win32_debug
 				lib_collada_path =  lib_collada_win32_debug
 				lib_boost_path =    lib_boost_win32_debug
 				lib_bullet_path =   lib_bullet_win32_debug
 			elseif platform_type == "x64" then 
 				lib_glew_path = 	lib_glew_win64_debug
+				lib_opencl_path = 	lib_opencl_win64_debug
 				lib_sfml_path =     lib_sfml_win64_debug
 				lib_collada_path =  lib_collada_win64_debug
 				lib_boost_path =    lib_boost_win64_debug
@@ -134,6 +146,7 @@ project ( name )
 		elseif os_type ==           "linux" then
 			if platform_type ==     "x32" then
 				lib_glew_path = 	lib_glew_linux_32
+				lib_opencl_path = 	lib_opencl_linux_32
 				lib_sfml_path =     lib_sfml_linux_32
 				lib_collada_path =  lib_collada_linux_32
 				lib_boost_path =    lib_boost_linux_32
@@ -148,7 +161,7 @@ project ( name )
 		end
 		
 		--Do this for every build type
-		local paths = { lib_glew_path, lib_sfml_path, lib_collada_path, lib_boost_path, lib_bullet_path}
+		local paths = { lib_glew_path, lib_opencl_path, lib_sfml_path, lib_collada_path, lib_boost_path, lib_bullet_path}
 		for i,path in pairs(paths) do
 			links(matchlibs(cwd .. path))
 			libdirs(path)
@@ -162,12 +175,14 @@ project ( name )
 		if os_type ==               "windows" then
 			if platform_type ==     "x32" then 
 				lib_glew_path = 	lib_glew_win32_release
+				lib_opencl_path = 	lib_opencl_win32_release
 				lib_sfml_path =     lib_sfml_win32_release
 				lib_collada_path =  lib_collada_win32_release
 				lib_boost_path =    lib_boost_win32_release
 				lib_bullet_path =   lib_bullet_win32_release
 			elseif platform_type == "x64" then 
 				lib_glew_path = 	lib_glew_win64_release
+				lib_opencl_path = 	lib_opencl_win64_release
 				lib_sfml_path =     lib_sfml_win64_release
 				lib_collada_path =  lib_collada_win64_release
 				lib_boost_path =    lib_boost_win64_release
@@ -177,12 +192,14 @@ project ( name )
 		elseif os_type ==           "linux" then
 			if platform_type ==     "x32" then
 				lib_glew_path = 	lib_glew_linux_32	
+				lib_opencl_path = 	lib_opencl_linux_32	
 				lib_sfml_path =     lib_sfml_linux_32
 				lib_collada_path =  lib_collada_linux_32
 				lib_boost_path =    lib_boost_linux_32
 				lib_bullet_path =   lib_bullet_linux_32  	
 			elseif platform_type == "x64" then
 				lib_glew_path = 	lib_glew_linux_64
+				lib_opencl_path = 	lib_opencl_linux_64	
 				lib_sfml_path =     lib_sfml_linux_64
 				lib_collada_path =  lib_collada_linux_64
 				lib_boost_path =    lib_boost_linux_64
@@ -191,7 +208,7 @@ project ( name )
 		end
 		
 		--Do this for every build type
-		local paths = { lib_glew_path, lib_sfml_path, lib_collada_path, lib_boost_path, lib_bullet_path}
+		local paths = { lib_glew_path, lib_opencl_path, lib_sfml_path, lib_collada_path, lib_boost_path, lib_bullet_path}
 		for i,path in pairs(paths) do
 			links(matchlibs(cwd .. path))
 			libdirs(path)
