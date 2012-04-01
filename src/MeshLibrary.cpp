@@ -155,12 +155,19 @@ void MeshLibrary::initialize()
     glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(DrawElementsIndirectCommand)*numMeshes, indirectCommands, GL_STATIC_READ);
 	
 
+	//bind atomic counter to the primCount parameter of the indirect command
+	//GLuint instances = 3;
+	//glBufferSubData(GL_DRAW_INDIRECT_BUFFER, sizeof(GLuint), sizeof(GLuint), &instances);
+	glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, indirectBufferObject, sizeof(GLuint), sizeof(GLuint));
+	
+
 
 	//cleanup
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 	delete[] vertices;
 	delete[] elementArray;
 	delete[] indirectCommands;
@@ -172,7 +179,8 @@ void MeshLibrary::render()
 {
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-    glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, 2, sizeof(DrawElementsIndirectCommand));
+    glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, 2, 0);
     glBindVertexArray(0);
+
 }
 

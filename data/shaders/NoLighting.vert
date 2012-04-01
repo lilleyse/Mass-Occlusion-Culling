@@ -1,5 +1,6 @@
 #version 420 core
 
+layout(binding = 0, offset = 0) uniform atomic_uint instanceCounter;
 
 /*-------------------------
 		Uniforms

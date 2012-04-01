@@ -93,11 +93,7 @@ void enterFrame()
 	glm::mat4* Pointer = (glm::mat4*)glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), 
 			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-		glm::mat4 view = Globals::viewMatrix;
-		glm::mat4 projection = projectionMatrix;
-		glm::mat4 modelViewProjection = projection * view;
-
-		*Pointer = modelViewProjection;
+		*Pointer = projectionMatrix * Globals::viewMatrix;
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
@@ -117,9 +113,9 @@ int main (int argc, char **argv)
     // Create the main rendering window
 	int width = 800;
 	int height = 800;
-	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(width, height, 32), "Instanced Culling", 6UL, sf::WindowSettings(24U, 8U, 4U));
+	sf::RenderWindow* window = new sf::RenderWindow(sf::VideoMode(width, height), "Instanced Culling");
 	
-    window->SetActive();
+   // window->SetActive();
     //window->UseVerticalSync(true);
     //window->SetFramerateLimit(100);
 
@@ -130,8 +126,21 @@ int main (int argc, char **argv)
 	int prevMouseX = 0;
 	int prevMouseY = 0;
 
+
+	int numFrames = 0;
+	sf::Clock clock;
+
     while (window->IsOpened())
     {
+
+		//framerate
+		numFrames++;
+		if(clock.GetElapsedTime() > 1.0f)
+		{
+			std::cout << "fps: " << numFrames << std::endl;
+			numFrames = 0;
+			clock.Reset();
+		}
 
 		enterFrame();
         window->Display();

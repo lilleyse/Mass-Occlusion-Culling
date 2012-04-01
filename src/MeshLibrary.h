@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <SFML/System.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 struct DrawElementsIndirectCommand
@@ -60,5 +62,6 @@ private:
 	GLuint transformsBufferObject;
 	GLuint elementBufferObject;
 	GLuint indirectBufferObject;
+	GLuint instanceAtomicCounter;
 
 };
