@@ -63,6 +63,12 @@ private:
 	//from the Nvidia OpenCL utils
 	char* loadProgramSource(const char* cFilename, size_t* szFinalLength);
 
+
+	//data
+	unsigned int numMeshes;
+	size_t* globalWorkSizes;
+	DrawElementsIndirectCommand* indirectCommands;
+
 	//GL buffer objects
 	GLuint vertexArrayObject;
 	GLuint arrayBufferObject;
@@ -81,6 +87,5 @@ private:
 	cl_program clProgram;
 	cl_int clError;
 	cl_mem inputTransformData; 
-	size_t globalWorkSize;
 	size_t localWorkSize;
 };

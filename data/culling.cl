@@ -10,6 +10,7 @@ __kernel void pass_along(__global const float4* source, __global float4* destina
     }
     
     // add the vector elements
-    destination[iGID] = source[iGID];
+	int index = iGID;// + get_global_offset(0);
+    destination[index] = source[index];
 }
 
