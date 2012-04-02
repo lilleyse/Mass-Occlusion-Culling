@@ -20,10 +20,14 @@ void MeshLibrary::initialize()
 
 	std::vector<Mesh> meshes;
 
-	//create mesh 1 (cube)
 	float positionData1[] =
     {
 		.7f, .7f, -.7f, .7f, -.7f, -.7f, -.7f, -.7f, -.7f, -.7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, -.7f, -.7f,.7f, -.7f, .7f,-.7f, -.7f, .7f,-.7f, -.7f, -.7f,-.7f, -.7f, -.7f,-.7f, -.7f, .7f,-.7f, .7f, .7f,-.7f, .7f, -.7f,.7f, .7f, .7f,.7f, .7f, -.7f,-.7f, .7f, -.7f,-.7f, .7f, .7f
+	};
+
+	float normalData1[] =
+    {
+		0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	unsigned short elementArray1[] =
@@ -33,14 +37,20 @@ void MeshLibrary::initialize()
 
 	Mesh mesh1;
 	mesh1.positionData = positionData1;
+	mesh1.normalData = normalData1;
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 5;
+	mesh1.numInstances = 5000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2 (isosphere)
 	float positionData2[] =
+	{
+		-0.276385f, -0.85064f, -0.447215f, 0.0f, 0.0f, -1.0f, 0.7236f, -0.52572f, -0.447215f, 0.7236f, 0.52572f, -0.447215f, -0.894425f, 0.0f, -0.447215f, -0.276385f, 0.85064f, -0.447215f, 0.894425f, 0.0f, 0.447215f, 0.276385f, -0.85064f, 0.447215f, -0.7236f, -0.52572f, 0.447215f, -0.7236f, 0.52572f, 0.447215f, 0.276385f, 0.85064f, 0.447215f, 0.0f, 0.0f, 1.0f
+	};
+
+	float normalData2[] =
 	{
 		-0.276385f, -0.85064f, -0.447215f, 0.0f, 0.0f, -1.0f, 0.7236f, -0.52572f, -0.447215f, 0.7236f, 0.52572f, -0.447215f, -0.894425f, 0.0f, -0.447215f, -0.276385f, 0.85064f, -0.447215f, 0.894425f, 0.0f, 0.447215f, 0.276385f, -0.85064f, 0.447215f, -0.7236f, -0.52572f, 0.447215f, -0.7236f, 0.52572f, 0.447215f, 0.276385f, 0.85064f, 0.447215f, 0.0f, 0.0f, 1.0f
 	};
@@ -52,23 +62,43 @@ void MeshLibrary::initialize()
 
 	Mesh mesh2;
 	mesh2.positionData = positionData2;
+	mesh2.normalData = normalData2;
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 5;
+	mesh2.numInstances = 5000;
 	meshes.push_back(mesh2);
 
 
-	
+
+	/*
+		30,000 triangles
+	*/
 	std::string filename = "data/meshes/pumpkin.dae";
 	ColladaData* data = Loader::readColladaAsset(Utils::getFilePath(filename));
 	Mesh mesh3;
 	mesh3.positionData = &data->positionData[0];
+	mesh3.normalData = &data->normalsData[0];
 	mesh3.elementArray = &data->elementArray[0];
 	mesh3.numVertices = data->numVertices;
 	mesh3.numElements = data->elementArray.size();
-	mesh3.numInstances = 5;
+	mesh3.numInstances = 5000;
 	meshes.push_back(mesh3);
+
+	/*
+		14,192 triangles
+	*/
+
+	std::string filename2 = "data/meshes/alien.dae";
+	ColladaData* data2 = Loader::readColladaAsset(Utils::getFilePath(filename2));
+	Mesh mesh4;
+	mesh4.positionData = &data2->positionData[0];
+	mesh4.normalData = &data2->normalsData[0];
+	mesh4.elementArray = &data2->elementArray[0];
+	mesh4.numVertices = data2->numVertices;
+	mesh4.numElements = data2->elementArray.size();
+	mesh4.numInstances = 10000;
+	meshes.push_back(mesh4);
 
 	/*------------------------------------
 			Lump mesh data together
@@ -112,6 +142,10 @@ void MeshLibrary::initialize()
 			vertices[index].x = meshes[i].positionData[j*3+0];
 			vertices[index].y = meshes[i].positionData[j*3+1];
 			vertices[index].z = meshes[i].positionData[j*3+2];
+
+			vertices[index].nx = meshes[i].normalData[j*3+0];
+			vertices[index].ny = meshes[i].normalData[j*3+1];
+			vertices[index].nz = meshes[i].normalData[j*3+2];
 		}
 
 		//copy over element array into the global element array
@@ -159,15 +193,19 @@ void MeshLibrary::initialize()
 	//enable vertex attributes
 	glEnableVertexAttribArray(GLuint(POSITION));
 	glEnableVertexAttribArray(GLuint(TRANSFORM));
+	glEnableVertexAttribArray(GLuint(NORMAL));
 
     //bind array buffer again
     glBindBuffer(GL_ARRAY_BUFFER, arrayBufferObject);
 	glVertexAttribPointer(POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	size_t offset = sizeof(float)*3;
+	glVertexAttribPointer(NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offset));
 
 	//bind transform array buffer again
 	glBindBuffer(GL_ARRAY_BUFFER, drawTransformsBufferObject);
 	glVertexAttribPointer(TRANSFORM, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(TRANSFORM, 1);
+	
 
 	//bind element array
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
@@ -267,9 +305,9 @@ void MeshLibrary::initialize()
 		//translationData[i*4 + 0] = i+1;
 		//translationData[i*4 + 1] = i+1;
 		//translationData[i*4 + 2] = i+1;
-		translationData[i*4 + 0] = glm::compRand1(-20.0f, 20.0f);
-		translationData[i*4 + 1] = glm::compRand1(-20.0f, 20.0f);
-		translationData[i*4 + 2] = glm::compRand1(-20.0f, 20.0f);
+		translationData[i*4 + 0] = glm::compRand1(-500.0f, 500.0f);
+		translationData[i*4 + 1] = glm::compRand1(-500.0f, 500.0f);
+		translationData[i*4 + 2] = glm::compRand1(-500.0f, 500.0f);
 		translationData[i*4 + 3] = 1;
 	}
 

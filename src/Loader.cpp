@@ -157,7 +157,7 @@ void Loader::loadGeometry(domGeometry* geom, ColladaData* outputData)
 				}
 				else if(semantic == "TEXCOORD")
 				{
-					domSource* textureSource = daeSafeCast<domSource>(input->getSource().getElement());
+					/*domSource* textureSource = daeSafeCast<domSource>(input->getSource().getElement());
 					std::string textureData = textureSource->getFloat_array()->getCharData();
 					unsigned int size = (unsigned int) textureSource->getFloat_array()->getCount();
 					outputData->textureData = parseDataIntoFloats(textureData, size);
@@ -169,7 +169,7 @@ void Loader::loadGeometry(domGeometry* geom, ColladaData* outputData)
 					unsigned int namePos = filepath.find_last_of('/') + 1;
 					filepath = filepath.substr(namePos);
 					std::cout << filepath << std::endl;
-					outputData->textureFileName = filepath;
+					outputData->textureFileName = filepath;*/
 				}
 			}
 		}

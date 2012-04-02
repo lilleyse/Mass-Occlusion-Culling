@@ -26,8 +26,10 @@ struct DrawElementsIndirectCommand
 struct Mesh
 {
 	float* positionData;
+	float* normalData;
 	unsigned short* elementArray;
 	int numVertices;
+	int numNormals;
 	int numElements;
 	int numInstances;
 
@@ -44,7 +46,8 @@ struct Vertex
 enum Attributes
 {
 	POSITION,
-	TRANSFORM
+	TRANSFORM,
+	NORMAL
 };
 
 struct BufferRegionCL

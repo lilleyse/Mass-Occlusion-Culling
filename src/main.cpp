@@ -34,7 +34,7 @@ void init()
 	//init OpenGL
 	glewInit();
 	fzNear = .10f;
-    fzFar = 2000.0f;
+    fzFar = 500.0f;
     float fieldOfViewDeg = 45.0f;
 	float fFovRad = fieldOfViewDeg * DEGREE_TO_RAD;
     frustumScale = 1.0f / tan(fFovRad / 2.0f);
