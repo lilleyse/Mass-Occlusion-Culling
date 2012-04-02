@@ -40,8 +40,8 @@ Would be more efficient with LOD for the complicated meshes, but I haven't imple
 ten_million.exe
 =================
 
-500,000 cubes
-500,000 isospheres
+5,000,000 cubes
+5,000,000 isospheres
 
 
 ====================
