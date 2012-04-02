@@ -20,6 +20,8 @@ void MeshLibrary::initialize()
 
 	std::vector<Mesh> meshes;
 
+
+	//create mesh 2 (cube)
 	float positionData1[] =
     {
 		.7f, .7f, -.7f, .7f, -.7f, -.7f, -.7f, -.7f, -.7f, -.7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, -.7f, -.7f,.7f, -.7f, .7f,-.7f, -.7f, .7f,-.7f, -.7f, -.7f,-.7f, -.7f, -.7f,-.7f, -.7f, .7f,-.7f, .7f, .7f,-.7f, .7f, -.7f,.7f, .7f, .7f,.7f, .7f, -.7f,-.7f, .7f, -.7f,-.7f, .7f, .7f
@@ -181,7 +183,7 @@ void MeshLibrary::initialize()
 	//indirect command buffer
 	glGenBuffers(1, &indirectBufferObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, numMeshes*sizeof(DrawElementsIndirectCommand), indirectCommands, GL_STATIC_DRAW);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, numMeshes*sizeof(DrawElementsIndirectCommand), indirectCommands, GL_STREAM_COPY);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
 
