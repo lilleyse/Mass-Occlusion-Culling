@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include "Utils.h"
 #include "Globals.h"
-#include "Cameras/Camera3rdPerson.h"
+#include "Cameras/Camera1stPerson.h"
 
 namespace
 {
@@ -20,7 +20,7 @@ namespace
 	GLuint modelViewProjectionUBO;
 	GLuint modelViewProjectionUBOBindingIndex;
 
-	Camera3rdPerson camera;
+	Camera1stPerson camera;
 }
 
 struct Test
@@ -204,9 +204,24 @@ int main (int argc, char **argv)
 					break;
 				case sf::Event::KeyPressed:
 
-					if(myEvent.Key.Code == sf::Key::Space)
+					switch(myEvent.Key.Code)
 					{
-						std::cout << "pressed spacebar" << std::endl;
+						/*case sf::Key::W:
+							camera.zoom(1.0f);
+							break;
+						case sf::Key::S:
+							camera.zoom(-1.0f);
+							break;
+						case sf::Key::A:
+							camera.rotate(-.05f, 0.0f);
+							break;
+						case sf::Key::D:
+							camera.rotate(.05f, 0.0f);
+							break;
+						case sf::Key::Space:
+							std::cout << "pressed spacebar" << std::endl;
+							break;
+						*/
 					}
 					break;
 

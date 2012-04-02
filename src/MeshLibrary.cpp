@@ -20,7 +20,7 @@ void MeshLibrary::initialize()
 
 	std::vector<Mesh> meshes;
 
-	//create mesh 1
+	//create mesh 1 (cube)
 	float positionData1[] =
     {
 		.7f, .7f, -.7f, .7f, -.7f, -.7f, -.7f, -.7f, -.7f, -.7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, .7f, -.7f, .7f, .7f, .7f, -.7f, .7f, .7f, .7f, .7f, -.7f, .7f, .7f, -.7f, -.7f, .7f, -.7f, -.7f,.7f, -.7f, .7f,-.7f, -.7f, .7f,-.7f, -.7f, -.7f,-.7f, -.7f, -.7f,-.7f, -.7f, .7f,-.7f, .7f, .7f,-.7f, .7f, -.7f,.7f, .7f, .7f,.7f, .7f, -.7f,-.7f, .7f, -.7f,-.7f, .7f, .7f
@@ -39,7 +39,7 @@ void MeshLibrary::initialize()
 	mesh1.numInstances = 5000000;
 	meshes.push_back(mesh1);
 
-	//create mesh 2
+	//create mesh 2 (isosphere)
 	float positionData2[] =
 	{
 		-0.276385f, -0.85064f, -0.447215f, 0.0f, 0.0f, -1.0f, 0.7236f, -0.52572f, -0.447215f, 0.7236f, 0.52572f, -0.447215f, -0.894425f, 0.0f, -0.447215f, -0.276385f, 0.85064f, -0.447215f, 0.894425f, 0.0f, 0.447215f, 0.276385f, -0.85064f, 0.447215f, -0.7236f, -0.52572f, 0.447215f, -0.7236f, 0.52572f, 0.447215f, 0.276385f, 0.85064f, 0.447215f, 0.0f, 0.0f, 1.0f
@@ -55,8 +55,8 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 500000;
-	//meshes.push_back(mesh2);
+	mesh2.numInstances = 1000000;
+	meshes.push_back(mesh2);
 
 	/*------------------------------------
 			Lump mesh data together
@@ -177,6 +177,7 @@ void MeshLibrary::initialize()
 
 	localWorkSize = 256;
 
+	//create different global work sizes for each mesh, aligned to localWorkSize
 	globalWorkSizes = new size_t[numMeshes];
 	for(unsigned int i = 0; i < numMeshes; i++)
 	{
@@ -218,32 +219,6 @@ void MeshLibrary::initialize()
     if (clError != CL_SUCCESS)
         std::cout << "could not create command queue" << std::endl;
 
-
-
-	//fill the transform data with random numbers
-	float* transformData = new float[totalInstances*4];
-	for(int i = 0; i < totalInstances; i++)
-	{
-		//transformData[i*4 + 0] = i+1;
-		//transformData[i*4 + 1] = i+1;
-		//transformData[i*4 + 2] = i+1;
-		transformData[i*4 + 0] = glm::compRand1(-1000.0f, 1000.0f);
-		transformData[i*4 + 1] = glm::compRand1(-1000.0f, 1000.0f);
-		transformData[i*4 + 2] = glm::compRand1(-1000.0f, 1000.0f);
-		transformData[i*4 + 3] = 1;
-	}
-
-	//create the cl buffer
-	inputTransformData = clCreateBuffer(clGPUContext, CL_MEM_READ_ONLY, totalInstances * sizeof(cl_float) * 4, NULL, &clError);
-	if (clError != CL_SUCCESS) 
-		std::cout << "could not put data into cl buffer" << std::endl;
-
-	//treat the GL indirect buffer object as a CL buffer object for using atomic counters
-	indirectBufferObject_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_READ_WRITE, indirectBufferObject, &clError);
-	if (clError != CL_SUCCESS)
-        std::cout << "could not convert GL indirect command buffer buffer to a CL buffer" << std::endl;
-
-
 	// load program source code
     size_t programLength;
 	std::string filepath = "data/culling.cl";
@@ -272,23 +247,48 @@ void MeshLibrary::initialize()
     if (clError != CL_SUCCESS)
         std::cout << "could not create kernel" << std::endl;
 
-	//treat the GL buffer object as a CL buffer object
-	vbo_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_WRITE_ONLY, drawTransformsBufferObject, NULL);
+
+	//fill the transform data with random numbers
+	float* translationData = new float[totalInstances*4];
+	for(int i = 0; i < totalInstances; i++)
+	{
+		//translationData[i*4 + 0] = i+1;
+		//translationData[i*4 + 1] = i+1;
+		//translationData[i*4 + 2] = i+1;
+		translationData[i*4 + 0] = glm::compRand1(-2000.0f, 2000.0f);
+		translationData[i*4 + 1] = glm::compRand1(-2000.0f, 2000.0f);
+		translationData[i*4 + 2] = glm::compRand1(-2000.0f, 2000.0f);
+		translationData[i*4 + 3] = 1;
+	}
+
+	//initialize openCL buffer that will contain translation data
+	inputTranslationData_cl = clCreateBuffer(clGPUContext, CL_MEM_READ_ONLY, totalInstances * sizeof(cl_float) * 4, NULL, &clError);
+	if (clError != CL_SUCCESS) 
+		std::cout << "could not put data into cl buffer" << std::endl;
+
+	//place transformData into the openCL buffer (source)
+	clError = clEnqueueWriteBuffer(clCommandQueue, inputTranslationData_cl, CL_FALSE, 0, totalInstances * sizeof(cl_float) * 4, translationData, 0, NULL, NULL);
+	if (clError != CL_SUCCESS)
+        std::cout << "could not transfer data from host ptr to device ptr" << std::endl;
+
+	//treat the GL indirect buffer object as a CL buffer
+	indirectBuffer_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_READ_WRITE, indirectBufferObject, &clError);
+	if (clError != CL_SUCCESS)
+        std::cout << "could not convert GL indirect command buffer buffer to a CL buffer" << std::endl;
+
+	//treat the GL translation buffer as a CL buffer (destination)
+	translationBuffer_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_WRITE_ONLY, drawTransformsBufferObject, &clError);
+	if (clError != CL_SUCCESS) 
+		std::cout << "could not convert GL translation buffer to a CL buffer" << std::endl;
 
 
     // set the args values for the kernel
-    clError  = clSetKernelArg(clKernel, 0, sizeof(cl_mem), (void*) &inputTransformData);
-    clError |= clSetKernelArg(clKernel, 1, sizeof(cl_mem), (void*) &vbo_cl);
-	clError |= clSetKernelArg(clKernel, 4, sizeof(cl_mem), (void*) &indirectBufferObject_cl);
+    clError  = clSetKernelArg(clKernel, 0, sizeof(cl_mem), (void*) &inputTranslationData_cl);
+    clError |= clSetKernelArg(clKernel, 1, sizeof(cl_mem), (void*) &translationBuffer_cl);
+	clError |= clSetKernelArg(clKernel, 4, sizeof(cl_mem), (void*) &indirectBuffer_cl);
 
     if (clError != CL_SUCCESS)
         std::cout << "could not set arguments to kernel" << std::endl;
-
-   
-	//send translation data to the cl buffer
-	clError = clEnqueueWriteBuffer(clCommandQueue, inputTransformData, CL_FALSE, 0, totalInstances * sizeof(cl_float) * 4, transformData, 0, NULL, NULL);
-	if (clError != CL_SUCCESS)
-        std::cout << "could not transfer data from host ptr to device ptr" << std::endl;
 
 }
 
@@ -332,13 +332,15 @@ char* MeshLibrary::loadProgramSource(const char* cFilename, size_t* szFinalLengt
 
 void MeshLibrary::render()
 {
-
+	//let gl finish before using its buffers
     glFinish();
+	
+    clEnqueueAcquireGLObjects(clCommandQueue, 1, &translationBuffer_cl, 0,0,0);
+	clEnqueueAcquireGLObjects(clCommandQueue, 1, &indirectBuffer_cl, 0,0,0);
 
-    clEnqueueAcquireGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
-	clEnqueueAcquireGLObjects(clCommandQueue, 1, &indirectBufferObject_cl, 0,0,0);
+	glm::mat4 MVPTransposed = glm::transpose(Globals::modelViewProjectionMatrix);
 
-
+	//call kernel for each different mesh type
 	for(unsigned int i = 0 ; i < numMeshes; i++)
 	{
 		//get the offset of the "paramCount" parameter of the indirect draw command
@@ -346,7 +348,7 @@ void MeshLibrary::render()
 		unsigned int zero = 0;
 
 		//Set paramCount to 0. Blocking
-		clEnqueueWriteBuffer(clCommandQueue, indirectBufferObject_cl, CL_TRUE, indirectCommandOffset*sizeof(cl_uint), sizeof(cl_uint), &zero, 0, 0, 0);
+		clEnqueueWriteBuffer(clCommandQueue, indirectBuffer_cl, CL_TRUE, indirectCommandOffset*sizeof(cl_uint), sizeof(cl_uint), &zero, 0, 0, 0);
 
 		int numInstances = indirectCommands[i].primCount;
 		size_t offset = indirectCommands[i].baseInstance;
@@ -354,23 +356,33 @@ void MeshLibrary::render()
 
 		clSetKernelArg(clKernel, 2, sizeof(cl_uint), &numInstances);
 		clSetKernelArg(clKernel, 3, sizeof(cl_uint), &offset);
-		clSetKernelArg(clKernel, 5, sizeof(cl_int), &indirectCommandOffset);
-		clSetKernelArg(clKernel, 6, sizeof(cl_float)*16, &glm::transpose(Globals::modelViewProjectionMatrix));
+		clSetKernelArg(clKernel, 5, sizeof(cl_uint), &indirectCommandOffset);
+		clSetKernelArg(clKernel, 6, sizeof(cl_float)*16, &MVPTransposed);
 
+		//use mesh specific global work size
 		clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, NULL, &globalWorkSizes[i], &localWorkSize, 0,0,0 );
 	}
-	clEnqueueReleaseGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
-	clEnqueueReleaseGLObjects(clCommandQueue, 1, &indirectBufferObject_cl, 0,0,0);
+	clEnqueueReleaseGLObjects(clCommandQueue, 1, &translationBuffer_cl, 0,0,0);
+	clEnqueueReleaseGLObjects(clCommandQueue, 1, &indirectBuffer_cl, 0,0,0);
 	clFinish(clCommandQueue);
 
 
-	/*glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
+	/*---------------------------------------------------------------
+			Uncomment to read how many instances are drawn
+	---------------------------------------------------------------*/
+
+	/*
+	int drawnInstances = 0;
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
 	DrawElementsIndirectCommand* pointer = (DrawElementsIndirectCommand*)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(DrawElementsIndirectCommand)*numMeshes, GL_MAP_READ_BIT);
 	for(int i = 0; i < numMeshes; i++)
 	{
-		std::cout << pointer[i].primCount << std::endl;
+		drawnInstances += pointer[i].primCount;
 	}
-	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);*/
+	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+	std::cout << "Drawing " << drawnInstances << " out of " << totalInstances << " instances" << std::endl;
+	*/
+
 
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);

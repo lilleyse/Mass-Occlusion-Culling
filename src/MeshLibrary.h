@@ -93,10 +93,10 @@ private:
 	cl_device_id clDevice;
 	cl_command_queue clCommandQueue;
 	cl_kernel clKernel;
-	cl_mem vbo_cl;
+	cl_mem translationBuffer_cl;
 	cl_program clProgram;
 	cl_int clError;
-	cl_mem inputTransformData; 
-	cl_mem indirectBufferObject_cl;
+	cl_mem inputTranslationData_cl; 
+	cl_mem indirectBuffer_cl;
 	size_t localWorkSize;
 };

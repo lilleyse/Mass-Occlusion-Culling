@@ -10,6 +10,7 @@ __kernel void pass_along(__global const float4* source,
  
     int iGID = get_global_id(0);
 
+	//don't process if this thread's index is greater than the total number of instances
     if (iGID >= numInstances)
     {   
         return; 
