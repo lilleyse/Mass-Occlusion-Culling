@@ -10,6 +10,7 @@
 #include <glm/gtx/random.hpp>
 #include <CL/opencl.h>
 #include "Utils.h"
+#include "Globals.h"
 
 
 struct DrawElementsIndirectCommand
@@ -45,7 +46,11 @@ enum Attributes
 	TRANSFORM
 };
 
-
+struct BufferRegionCL
+{
+	size_t origin;
+	size_t size;
+};
 
 
 class MeshLibrary
@@ -65,6 +70,11 @@ private:
 
 
 	//data
+
+	int totalVertices;
+	int totalElements;
+	int totalInstances;
+
 	unsigned int numMeshes;
 	size_t* globalWorkSizes;
 	DrawElementsIndirectCommand* indirectCommands;
@@ -87,5 +97,6 @@ private:
 	cl_program clProgram;
 	cl_int clError;
 	cl_mem inputTransformData; 
+	cl_mem indirectBufferObject_cl;
 	size_t localWorkSize;
 };

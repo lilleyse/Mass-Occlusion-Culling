@@ -1,16 +1,39 @@
-__kernel void pass_along(__global const float4* source, __global float4* destination, int iNumElements)
+__kernel void pass_along(__global const float4* source, 
+						__global float4* destination, 
+						int numInstances,
+						int offset,
+						__global uint* indirectCommandData,
+						int indirectCommandOffset,
+						float16 MVP
+						)
 {
-    // get index into global data array
+ 
     int iGID = get_global_id(0);
 
-    // bound check (equivalent to the limit on a 'for' loop for standard/serial C code
-    if (iGID >= iNumElements)
+    if (iGID >= numInstances)
     {   
         return; 
     }
     
-    // add the vector elements
-	int index = iGID;// + get_global_offset(0);
-    destination[index] = source[index];
+
+	float4 translation = source[offset + iGID];
+
+	float4 clipSpace;
+	clipSpace.x = dot(MVP.lo.lo, translation);
+	clipSpace.y = dot(MVP.lo.hi, translation);
+	clipSpace.z = dot(MVP.hi.lo, translation);
+	clipSpace.w = dot(MVP.hi.hi, translation);
+
+	if(clipSpace.x < clipSpace.w && clipSpace.x > -clipSpace.w &&
+	   clipSpace.y < clipSpace.w && clipSpace.y > -clipSpace.w &&
+	   clipSpace.z < clipSpace.w && clipSpace.z > -clipSpace.w
+	)
+	{
+		//increment the primCounter parameter of the indirect command
+		uint index = atomic_inc(&indirectCommandData[indirectCommandOffset]);
+  
+		destination[offset + index] = translation;
+	}
+	
 }
 

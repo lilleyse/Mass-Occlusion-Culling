@@ -34,7 +34,7 @@ void init()
 	//init OpenGL
 	glewInit();
 	fzNear = .10f;
-    fzFar = 1000.0f;
+    fzFar = 2000.0f;
     float fieldOfViewDeg = 45.0f;
 	float fFovRad = fieldOfViewDeg * DEGREE_TO_RAD;
     frustumScale = 1.0f / tan(fFovRad / 2.0f);
@@ -88,12 +88,14 @@ void enterFrame()
     glClearDepth(1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
+	Globals::modelViewProjectionMatrix = projectionMatrix * Globals::viewMatrix;
 	//orphaning
 	glBindBuffer(GL_UNIFORM_BUFFER, modelViewProjectionUBO);
 	glm::mat4* Pointer = (glm::mat4*)glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), 
 			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-		*Pointer = projectionMatrix * Globals::viewMatrix;
+	*Pointer = Globals::modelViewProjectionMatrix;
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 

@@ -14,7 +14,7 @@ layout(binding = 0) uniform transform
 /*-------------------------
 		Inputs
 ---------------------------*/
-layout(location = 0) in vec4 position;
+layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 translation;
 
 /*-------------------------
@@ -23,5 +23,5 @@ layout(location = 1) in vec4 translation;
 
 void main()
 {
-	gl_Position = ModelViewProjection.matrix * (position + translation);
+	gl_Position = ModelViewProjection.matrix * (vec4(position, 0) + translation);
 }

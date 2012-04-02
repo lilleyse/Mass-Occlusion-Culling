@@ -36,7 +36,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 2;
+	mesh1.numInstances = 5000000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2
@@ -55,8 +55,8 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 3000;
-	meshes.push_back(mesh2);
+	mesh2.numInstances = 500000;
+	//meshes.push_back(mesh2);
 
 	/*------------------------------------
 			Lump mesh data together
@@ -65,9 +65,9 @@ void MeshLibrary::initialize()
 	numMeshes = meshes.size();
 
 	//get the total number of vertices and elements
-	int totalVertices = 0;
-	int totalElements = 0;
-	int totalInstances = 0;
+	totalVertices = 0;
+	totalElements = 0;
+	totalInstances = 0;
 	for(unsigned int i = 0; i < numMeshes; i++)
 	{
 		totalVertices += meshes[i].numVertices;
@@ -224,10 +224,13 @@ void MeshLibrary::initialize()
 	float* transformData = new float[totalInstances*4];
 	for(int i = 0; i < totalInstances; i++)
 	{
-		transformData[i*4 + 0] = glm::compRand1(-50.0f, 50.0f);
-		transformData[i*4 + 1] = glm::compRand1(-50.0f, 50.0f);
-		transformData[i*4 + 2] = glm::compRand1(-50.0f, 50.0f);
-		transformData[i*4 + 3] = 0;
+		//transformData[i*4 + 0] = i+1;
+		//transformData[i*4 + 1] = i+1;
+		//transformData[i*4 + 2] = i+1;
+		transformData[i*4 + 0] = glm::compRand1(-1000.0f, 1000.0f);
+		transformData[i*4 + 1] = glm::compRand1(-1000.0f, 1000.0f);
+		transformData[i*4 + 2] = glm::compRand1(-1000.0f, 1000.0f);
+		transformData[i*4 + 3] = 1;
 	}
 
 	//create the cl buffer
@@ -235,7 +238,10 @@ void MeshLibrary::initialize()
 	if (clError != CL_SUCCESS) 
 		std::cout << "could not put data into cl buffer" << std::endl;
 
-
+	//treat the GL indirect buffer object as a CL buffer object for using atomic counters
+	indirectBufferObject_cl = clCreateFromGLBuffer(clGPUContext, CL_MEM_READ_WRITE, indirectBufferObject, &clError);
+	if (clError != CL_SUCCESS)
+        std::cout << "could not convert GL indirect command buffer buffer to a CL buffer" << std::endl;
 
 
 	// load program source code
@@ -254,7 +260,12 @@ void MeshLibrary::initialize()
     // build the program
     clError = clBuildProgram(clProgram, 0, NULL, "-cl-fast-relaxed-math", NULL, NULL);
     if (clError != CL_SUCCESS)
+	{
         std::cout << "could not build program" << std::endl;
+		char cBuildLog[10240];
+		clGetProgramBuildInfo(clProgram, clDevice, CL_PROGRAM_BUILD_LOG, sizeof(cBuildLog), cBuildLog, NULL);
+		std::cout << cBuildLog << std::endl;
+	}
 
     // create the kernel
     clKernel = clCreateKernel(clProgram, "pass_along", &clError);
@@ -268,7 +279,8 @@ void MeshLibrary::initialize()
     // set the args values for the kernel
     clError  = clSetKernelArg(clKernel, 0, sizeof(cl_mem), (void*) &inputTransformData);
     clError |= clSetKernelArg(clKernel, 1, sizeof(cl_mem), (void*) &vbo_cl);
-    clError |= clSetKernelArg(clKernel, 2, sizeof(cl_uint), &totalInstances);
+	clError |= clSetKernelArg(clKernel, 4, sizeof(cl_mem), (void*) &indirectBufferObject_cl);
+
     if (clError != CL_SUCCESS)
         std::cout << "could not set arguments to kernel" << std::endl;
 
@@ -321,51 +333,53 @@ char* MeshLibrary::loadProgramSource(const char* cFilename, size_t* szFinalLengt
 void MeshLibrary::render()
 {
 
-	//with error checking
-
-    /*glFinish();
-    clError = clEnqueueAcquireGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
-    if (clError != CL_SUCCESS)
-        std::cout << "could not acquire GL object for use" << std::endl;
-
-	clError = clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, NULL, &globalWorkSize, &localWorkSize, 0,0,0 );
-	if (clError != CL_SUCCESS)
-        std::cout << "could not run kernel" << std::endl;
-
-	clError = clEnqueueReleaseGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
-	if (clError != CL_SUCCESS)
-        std::cout << "could not release gl object" << std::endl;
-
-	clFinish(clCommandQueue);*/
-
-
-
     glFinish();
+
     clEnqueueAcquireGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+	clEnqueueAcquireGLObjects(clCommandQueue, 1, &indirectBufferObject_cl, 0,0,0);
+
+
 	for(unsigned int i = 0 ; i < numMeshes; i++)
 	{
+		//get the offset of the "paramCount" parameter of the indirect draw command
+		int indirectCommandOffset = i*5 + 1;
+		unsigned int zero = 0;
+
+		//Set paramCount to 0. Blocking
+		clEnqueueWriteBuffer(clCommandQueue, indirectBufferObject_cl, CL_TRUE, indirectCommandOffset*sizeof(cl_uint), sizeof(cl_uint), &zero, 0, 0, 0);
+
 		int numInstances = indirectCommands[i].primCount;
-		size_t baseInstance = indirectCommands[i].baseInstance;
+		size_t offset = indirectCommands[i].baseInstance;
 
-		clError  = clSetKernelArg(clKernel, 2, sizeof(cl_uint), &numInstances);
 
-		if (clError != CL_SUCCESS)
-			std::cout << "could not set arguments to kernel during runtime" << std::endl;
+		clSetKernelArg(clKernel, 2, sizeof(cl_uint), &numInstances);
+		clSetKernelArg(clKernel, 3, sizeof(cl_uint), &offset);
+		clSetKernelArg(clKernel, 5, sizeof(cl_int), &indirectCommandOffset);
+		clSetKernelArg(clKernel, 6, sizeof(cl_float)*16, &glm::transpose(Globals::modelViewProjectionMatrix));
 
-		clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, &baseInstance, &globalWorkSizes[i], &localWorkSize, 0,0,0 );
+		clEnqueueNDRangeKernel(clCommandQueue, clKernel, 1, NULL, &globalWorkSizes[i], &localWorkSize, 0,0,0 );
 	}
 	clEnqueueReleaseGLObjects(clCommandQueue, 1, &vbo_cl, 0,0,0);
+	clEnqueueReleaseGLObjects(clCommandQueue, 1, &indirectBufferObject_cl, 0,0,0);
 	clFinish(clCommandQueue);
 
 
+	/*glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
+	DrawElementsIndirectCommand* pointer = (DrawElementsIndirectCommand*)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(DrawElementsIndirectCommand)*numMeshes, GL_MAP_READ_BIT);
+	for(int i = 0; i < numMeshes; i++)
+	{
+		std::cout << pointer[i].primCount << std::endl;
+	}
+	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);*/
+
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-	//if meshCount == 1 use glDrawElementsIndirect instead
-	//glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0);
     glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, numMeshes, 0);
     glBindVertexArray(0);
 
 	
+
+
 
 
 }
