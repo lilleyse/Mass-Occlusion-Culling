@@ -18,6 +18,13 @@ This program has been developed on a NVIDIA GTX 460 and requires OpenGL 4.2 with
 If you don't feel like building the project, you can run everything.exe and ten_million.exe to see some examples of this project
 
 ================
+Controls
+================
+
+Mouse click and drag to look around world
+Mouse wheel to move forward/backwards
+
+================
 everything.exe
 ================
 
