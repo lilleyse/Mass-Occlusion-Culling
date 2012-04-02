@@ -36,7 +36,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 5000000;
+	mesh1.numInstances = 5;
 	meshes.push_back(mesh1);
 
 	//create mesh 2 (isosphere)
@@ -55,8 +55,20 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 5000000;
+	mesh2.numInstances = 5;
 	meshes.push_back(mesh2);
+
+
+	
+	std::string filename = "data/meshes/pumpkin.dae";
+	ColladaData* data = Loader::readColladaAsset(Utils::getFilePath(filename));
+	Mesh mesh3;
+	mesh3.positionData = &data->positionData[0];
+	mesh3.elementArray = &data->elementArray[0];
+	mesh3.numVertices = data->numVertices;
+	mesh3.numElements = data->elementArray.size();
+	mesh3.numInstances = 5;
+	meshes.push_back(mesh3);
 
 	/*------------------------------------
 			Lump mesh data together
@@ -96,7 +108,7 @@ void MeshLibrary::initialize()
 		//create vertices
 		for(int j = 0; j < meshes[i].numVertices; j++)
 		{
-			int index = i*vertexCounter + j;
+			int index = vertexCounter + j;
 			vertices[index].x = meshes[i].positionData[j*3+0];
 			vertices[index].y = meshes[i].positionData[j*3+1];
 			vertices[index].z = meshes[i].positionData[j*3+2];
@@ -255,9 +267,9 @@ void MeshLibrary::initialize()
 		//translationData[i*4 + 0] = i+1;
 		//translationData[i*4 + 1] = i+1;
 		//translationData[i*4 + 2] = i+1;
-		translationData[i*4 + 0] = glm::compRand1(-2000.0f, 2000.0f);
-		translationData[i*4 + 1] = glm::compRand1(-2000.0f, 2000.0f);
-		translationData[i*4 + 2] = glm::compRand1(-2000.0f, 2000.0f);
+		translationData[i*4 + 0] = glm::compRand1(-20.0f, 20.0f);
+		translationData[i*4 + 1] = glm::compRand1(-20.0f, 20.0f);
+		translationData[i*4 + 2] = glm::compRand1(-20.0f, 20.0f);
 		translationData[i*4 + 3] = 1;
 	}
 

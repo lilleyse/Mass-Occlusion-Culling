@@ -11,6 +11,7 @@
 #include <CL/opencl.h>
 #include "Utils.h"
 #include "Globals.h"
+#include "Loader.h"
 
 
 struct DrawElementsIndirectCommand
