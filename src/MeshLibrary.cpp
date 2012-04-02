@@ -55,7 +55,7 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 1000000;
+	mesh2.numInstances = 5000000;
 	meshes.push_back(mesh2);
 
 	/*------------------------------------

@@ -204,9 +204,9 @@ int main (int argc, char **argv)
 					break;
 				case sf::Event::KeyPressed:
 
-					switch(myEvent.Key.Code)
+					/*switch(myEvent.Key.Code)
 					{
-						/*case sf::Key::W:
+						case sf::Key::W:
 							camera.zoom(1.0f);
 							break;
 						case sf::Key::S:
@@ -221,8 +221,8 @@ int main (int argc, char **argv)
 						case sf::Key::Space:
 							std::cout << "pressed spacebar" << std::endl;
 							break;
-						*/
-					}
+						
+					}*/
 					break;
 
 				case sf::Event::Closed:
