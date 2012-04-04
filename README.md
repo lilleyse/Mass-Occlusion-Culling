@@ -49,6 +49,6 @@ ten_million.exe
 * 5,000,000 cubes
 * 5,000,000 isospheres
 
-![alt text](ten_million_screenshot.png "10 million objects in the world, but only those visible in the view are rendered")
+![alt text](https://github.com/sebby64/Mass-OcclusionCulling/raw/master/ten_million_screenshot.png "10 million objects in the world, but only those visible in the view are rendered")
 
 
