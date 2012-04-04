@@ -42,7 +42,7 @@ everything.exe
 * Shading is done just by the normal.
 * Would be more efficient with LOD for the complicated meshes, but I haven't implemented this yet.
 
-![alt text](ten_million_screenshot.png "4 types of meshes drawn with one call")
+![alt text](https://github.com/sebby64/Mass-Occlusion-Culling/raw/master/everything_screenshot.png "4 types of meshes drawn with one call")
 
 ten_million.exe
 
