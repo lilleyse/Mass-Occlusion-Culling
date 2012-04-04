@@ -19,11 +19,11 @@ If you don't feel like building the project, you can run everything.exe and ten_
  
 To build and run for Visual Studio 2010:
 
-Clone the repo, or just download it
-Rename the root folder so that it doesn't have hyphens (bug in Premake that I will try to address)
-Go to the tools/project_builder folder and run build_win.bat.
-Now navigate to the build folder and open the solution.
-Run in debug or release
+* Clone the repo, or just download it
+* Rename the root folder so that it doesn't have hyphens (bug in Premake that I will try to address)
+* Go to the tools/project_builder folder and run build_win.bat.
+* Now navigate to the build folder and open the solution.
+* Run in debug or release
 
 ## Controls
 
@@ -42,11 +42,13 @@ everything.exe
 * Shading is done just by the normal.
 * Would be more efficient with LOD for the complicated meshes, but I haven't implemented this yet.
 
+![alt text](ten_million_screenshot.png "4 types of meshes drawn with one call")
+
 ten_million.exe
 
 * 5,000,000 cubes
 * 5,000,000 isospheres
 
-## Screenshots
+![alt text](ten_million_screenshot.png "10 million objects in the world, but only those visible in the view are rendered")
 
-http://i.imgur.com/WWLYo.gif
+
