@@ -34,7 +34,7 @@ void init()
 	//init OpenGL
 	glewInit();
 	fzNear = .10f;
-    fzFar = 500.0f;
+    fzFar = 1000.0f;
     float fieldOfViewDeg = 45.0f;
 	float fFovRad = fieldOfViewDeg * DEGREE_TO_RAD;
     frustumScale = 1.0f / tan(fFovRad / 2.0f);
@@ -147,6 +147,25 @@ int main (int argc, char **argv)
 		enterFrame();
         window->Display();
 
+		
+		if(window->GetInput().IsKeyDown(sf::Key::W))
+		{
+			camera.zoom(2);
+		}
+		else if(window->GetInput().IsKeyDown(sf::Key::S))
+		{
+			camera.zoom(-1);
+		}
+		else if(window->GetInput().IsKeyDown(sf::Key::A))
+		{
+			camera.pan(-1, 0);
+		}
+		else if(window->GetInput().IsKeyDown(sf::Key::D))
+		{
+			camera.pan(1, 0);
+		}
+
+
         sf::Event myEvent;
         while (window->GetEvent(myEvent))
         {
@@ -204,25 +223,6 @@ int main (int argc, char **argv)
 					break;
 				case sf::Event::KeyPressed:
 
-					/*switch(myEvent.Key.Code)
-					{
-						case sf::Key::W:
-							camera.zoom(1.0f);
-							break;
-						case sf::Key::S:
-							camera.zoom(-1.0f);
-							break;
-						case sf::Key::A:
-							camera.rotate(-.05f, 0.0f);
-							break;
-						case sf::Key::D:
-							camera.rotate(.05f, 0.0f);
-							break;
-						case sf::Key::Space:
-							std::cout << "pressed spacebar" << std::endl;
-							break;
-						
-					}*/
 					break;
 
 				case sf::Event::Closed:

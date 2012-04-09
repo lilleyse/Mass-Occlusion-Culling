@@ -43,7 +43,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 5000;
+	mesh1.numInstances = 10000000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2 (isosphere)
@@ -68,7 +68,7 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 5000;
+	mesh2.numInstances = 10000000;
 	meshes.push_back(mesh2);
 
 
@@ -85,7 +85,7 @@ void MeshLibrary::initialize()
 	mesh3.numVertices = data->numVertices;
 	mesh3.numElements = data->elementArray.size();
 	mesh3.numInstances = 5000;
-	meshes.push_back(mesh3);
+	//meshes.push_back(mesh3);
 
 	/*
 		14,192 triangles
@@ -100,7 +100,7 @@ void MeshLibrary::initialize()
 	mesh4.numVertices = data2->numVertices;
 	mesh4.numElements = data2->elementArray.size();
 	mesh4.numInstances = 10000;
-	meshes.push_back(mesh4);
+	//meshes.push_back(mesh4);
 
 	/*------------------------------------
 			Lump mesh data together
@@ -307,9 +307,9 @@ void MeshLibrary::initialize()
 		//translationData[i*4 + 0] = i+1;
 		//translationData[i*4 + 1] = i+1;
 		//translationData[i*4 + 2] = i+1;
-		translationData[i*4 + 0] = glm::compRand1(-500.0f, 500.0f);
-		translationData[i*4 + 1] = glm::compRand1(-500.0f, 500.0f);
-		translationData[i*4 + 2] = glm::compRand1(-500.0f, 500.0f);
+		translationData[i*4 + 0] = glm::compRand1(-1500.0f, 1500.0f);
+		translationData[i*4 + 1] = glm::compRand1(-1500.0f, 1500.0f);
+		translationData[i*4 + 2] = glm::compRand1(-1500.0f, 1500.0f);
 		translationData[i*4 + 3] = 1;
 	}
 

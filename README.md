@@ -1,5 +1,6 @@
 # Mass Instancing
 
+
 ## Notes
 
 This project sets out to draw many instances while avoiding costly CPU-GPU synchronization. One of the key features is glMultiDrawElementsIndirectAMD, which uses buffer data to source instanced drawing of any number of shapes.
@@ -27,28 +28,29 @@ To build and run for Visual Studio 2010:
 
 ## Controls
 
+* WASD to move around
 * Mouse click and drag to look around world
-* Mouse wheel to move forward/backwards
+* Mouse wheel to move forward/backwards (same control as W and S)
 
 ## Examples
 
 everything.exe
 
-* 5000 cubes
-* 5000 isopheres
-* 5000 aliens (14,192 triangles each)
-* 5000 pumpkins (30,000 triangles each)
+* 10,000 cubes
+* 10,000 isopheres
+* 10,000 aliens (14,192 triangles each)
+* 10,000 pumpkins (30,000 triangles each)
 
 * Shading is done just by the normal.
 * Would be more efficient with LOD for the complicated meshes, but I haven't implemented this yet.
 
 ![alt text](https://github.com/sebby64/Mass-Occlusion-Culling/raw/master/everything_screenshot.png "4 types of meshes drawn with one call")
 
-ten_million.exe
+20million.exe
 
-* 5,000,000 cubes
-* 5,000,000 isospheres
+* 10,000,000 cubes
+* 10,000,000 isospheres
 
-![alt text](https://github.com/sebby64/Mass-Occlusion-Culling/raw/master/ten_million_screenshot.png "10 million objects in the world, but only those visible in the view are rendered")
+![alt text](https://github.com/sebby64/Mass-Occlusion-Culling/raw/master/20million_screenshot.png "20 million objects in the world, but only those visible in the view are rendered")
 
 
