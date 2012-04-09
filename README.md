@@ -14,7 +14,7 @@ Nearly all of the relevant code is contained within MeshLibrary.cpp and data/cul
 
 This program has been developed on a NVIDIA GTX 460 and requires **OpenGL 4.2 with the GL_AMD_multi_draw_indirect extension**
 
-If you don't feel like building the project, you can run everything.exe and ten_million.exe to see some examples of this project
+If you don't feel like building the project, you can run everything.exe and 20million.exe to see some examples of this project
    
 ## Build Instructions
  
