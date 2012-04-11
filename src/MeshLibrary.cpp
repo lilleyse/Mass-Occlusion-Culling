@@ -183,7 +183,7 @@ void MeshLibrary::initialize()
 	//indirect command buffer
 	glGenBuffers(1, &indirectBufferObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, numMeshes*sizeof(DrawElementsIndirectCommand), indirectCommands, GL_STREAM_COPY);
+    glBufferData(GL_DRAW_INDIRECT_BUFFER, numMeshes*sizeof(DrawElementsIndirectCommand), indirectCommands, GL_STREAM_DRAW);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
 

@@ -6,10 +6,10 @@ layout(binding = 0, offset = 0) uniform atomic_uint instanceCounter;
 		Uniforms
 ---------------------------*/
 
-layout(binding = 0) uniform transform
+layout(binding = 0) uniform ViewProjection
 {
-	mat4 matrix;
-} ModelViewProjection;
+	mat4 viewProjectionMatrix;
+};
 
 
 /*-------------------------
@@ -17,6 +17,11 @@ layout(binding = 0) uniform transform
 ---------------------------*/
 
 layout(location = 0) out vec4 interpColor;
+
+out gl_PerVertex
+{
+	vec4 gl_Position;
+};
 
 /*-------------------------
 		Inputs
@@ -32,5 +37,5 @@ layout(location = 2) in vec3 normal;
 void main()
 {
 	interpColor = vec4(normal + .3,1);
-	gl_Position = ModelViewProjection.matrix * (vec4(position, 0) + translation);
+	gl_Position = viewProjectionMatrix * (vec4(position, 0) + translation);
 }
