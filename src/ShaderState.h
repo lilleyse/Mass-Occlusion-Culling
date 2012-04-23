@@ -14,7 +14,7 @@ public:
 	void prepareForRender();
 
 	GLuint basicProgram;
-	GLuint pipeline;
+	GLuint transparencyResolveProgram;
 
 private:
 	//modified from http://arcsynthesis.org/gltut/

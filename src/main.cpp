@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "Globals.h"
 #include "Cameras/Camera1stPerson.h"
+#include "Transparency.h"
 
 namespace
 {
@@ -21,12 +22,11 @@ namespace
 	GLuint modelViewProjectionUBOBindingIndex;
 
 	Camera1stPerson camera;
+
+	Transparency transparency;
+
 }
 
-struct Test
-{
-	int thing;
-};
 
 void init()
 {
@@ -67,7 +67,7 @@ void init()
 	Globals::shaderState.initialize();
 	Globals::meshLibrary.initialize();
 	camera.activate();
-
+	transparency.initTransparency();
 
 }
 
@@ -80,6 +80,8 @@ void resize(int w, int h)
 	height = h;
 
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+
+	transparency.reshapeTransparency(width, height);
 }
 
 void enterFrame()
@@ -99,9 +101,11 @@ void enterFrame()
 
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
-
+	
 	Globals::shaderState.prepareForRender();
+	transparency.prepareTransparency(width, height);
 	Globals::meshLibrary.render();
+	transparency.finalizeTransparency();
 
 }
 
