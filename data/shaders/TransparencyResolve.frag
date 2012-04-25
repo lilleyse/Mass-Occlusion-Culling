@@ -11,7 +11,7 @@ layout (location = 0, index = 0) out vec4 fragColor;
 layout(binding = 1, r32ui) readonly uniform uimage2D headsArray;
 layout(binding = 2, rgba32ui) readonly uniform uimageBuffer globalsData;
 
-const int limit = 2;
+const int limit = 15;
 
 void main()
 {

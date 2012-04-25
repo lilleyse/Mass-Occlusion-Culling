@@ -43,7 +43,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 5000000;
+	mesh1.numInstances = 10000000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2 (isosphere)
@@ -69,7 +69,7 @@ void MeshLibrary::initialize()
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
 	mesh2.numInstances = 5000000;
-	meshes.push_back(mesh2);
+	//meshes.push_back(mesh2);
 
 
 
@@ -438,7 +438,9 @@ void MeshLibrary::render()
 
 	glBindVertexArray(vertexArrayObject);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
-    glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, numMeshes, 0);
+    //glMultiDrawElementsIndirectAMD(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0, numMeshes, 0);
+	//temporarily make it work on other computers
+	glDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 
 	

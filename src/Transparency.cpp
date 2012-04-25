@@ -72,7 +72,7 @@ void Transparency::initTransparency()
 	glBindTexture(GL_TEXTURE_2D, headsArray);
 
 	//create global data array
-	predictedNumberOfFragments = 4193404;
+	predictedNumberOfFragments = 8386808;
 	unsigned int* zeroArray = new unsigned int[predictedNumberOfFragments*4];
 	memset(zeroArray, 0, sizeof(unsigned int)*predictedNumberOfFragments*4);
 	
@@ -126,6 +126,10 @@ void Transparency::prepareTransparency(int width, int height)
 }
 void Transparency::finalizeTransparency()
 {
+	/*---------------------------------------------------------
+		Uncomment to get the number of transparent fragments
+	-----------------------------------------------------------*/
+
 	/*glm::uint32 counterAmount;
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, nodeCounter);
 	glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(glm::uint32), &counterAmount);
@@ -133,6 +137,7 @@ void Transparency::finalizeTransparency()
 	{
 		std::cout << counterAmount << std::endl;
 	}*/
+
 	glStencilFunc(GL_EQUAL, 0x01, 0x01);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
