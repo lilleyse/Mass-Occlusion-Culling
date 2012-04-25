@@ -43,7 +43,7 @@ void MeshLibrary::initialize()
 	mesh1.elementArray = elementArray1;
 	mesh1.numVertices = 24;
 	mesh1.numElements = 36;
-	mesh1.numInstances = 10000000;
+	mesh1.numInstances = 5000000;
 	meshes.push_back(mesh1);
 
 	//create mesh 2 (isosphere)
@@ -68,7 +68,7 @@ void MeshLibrary::initialize()
 	mesh2.elementArray = elementArray2;
 	mesh2.numVertices = 12;
 	mesh2.numElements = 60; 
-	mesh2.numInstances = 10000000;
+	mesh2.numInstances = 5000000;
 	meshes.push_back(mesh2);
 
 
@@ -141,9 +141,9 @@ void MeshLibrary::initialize()
 		for(int j = 0; j < meshes[i].numVertices; j++)
 		{
 			int index = vertexCounter + j;
-			vertices[index].x = meshes[i].positionData[j*3+0];
-			vertices[index].y = meshes[i].positionData[j*3+1];
-			vertices[index].z = meshes[i].positionData[j*3+2];
+			vertices[index].x = meshes[i].positionData[j*3+0]*1.5;
+			vertices[index].y = meshes[i].positionData[j*3+1]*1.5;
+			vertices[index].z = meshes[i].positionData[j*3+2]*1.5;
 
 			vertices[index].nx = meshes[i].normalData[j*3+0];
 			vertices[index].ny = meshes[i].normalData[j*3+1];
@@ -423,8 +423,8 @@ void MeshLibrary::render()
 			Uncomment to read how many instances are drawn
 	---------------------------------------------------------------*/
 
-	/*
-	int drawnInstances = 0;
+	
+	/*int drawnInstances = 0;
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBufferObject);
 	DrawElementsIndirectCommand* pointer = (DrawElementsIndirectCommand*)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(DrawElementsIndirectCommand)*numMeshes, GL_MAP_READ_BIT);
 	for(int i = 0; i < numMeshes; i++)

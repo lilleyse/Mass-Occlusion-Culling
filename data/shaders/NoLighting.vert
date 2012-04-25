@@ -36,6 +36,6 @@ layout(location = 2) in vec3 normal;
 
 void main()
 {
-	interpColor = vec4(normal + .3,1);
+	interpColor = vec4(normal,1);
 	gl_Position = viewProjectionMatrix * (vec4(position, 0) + translation);
 }

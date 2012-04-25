@@ -90,9 +90,12 @@ void Transparency::initTransparency()
 
 	//set changes to GL state
 	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_STENCIL_TEST);
 }
 void Transparency::reshapeTransparency(int width, int height)
 {
@@ -102,6 +105,10 @@ void Transparency::reshapeTransparency(int width, int height)
 }
 void Transparency::prepareTransparency(int width, int height)
 {
+	
+	glStencilFunc(GL_ALWAYS, 0x01, 0x01);
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, nodeCounter);
@@ -126,7 +133,9 @@ void Transparency::finalizeTransparency()
 	{
 		std::cout << counterAmount << std::endl;
 	}*/
-
+	glStencilFunc(GL_EQUAL, 0x01, 0x01);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glUseProgram(Globals::shaderState.transparencyResolveProgram);
 	glBindVertexArray(vertexArrayObject);
